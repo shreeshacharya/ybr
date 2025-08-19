@@ -1,0 +1,51 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from IPython.display import display
+
+try:
+    df = pd.read_csv("expenses.csv")
+except FileNotFoundError:
+    data = {
+        'Date': ['2025-08-01', '2025-08-02', '2025-08-02', '2025-08-03', '2025-08-03'],
+        'Category': ['Food', 'Transport', 'Food', 'Shopping', 'Bills'],
+        'Amount': [200, 100, 150, 500, 300]
+    }
+    df = pd.DataFrame(data)
+    df.to_csv("expenses.csv", index=False)
+
+print("\n First few records:")
+display(df.head())
+
+print("\n Summary stats:")
+display(df.describe())
+
+category_summary = df.groupby("Category")["Amount"].sum().sort_values(ascending=False)
+print("\n Total by Category:")
+display(category_summary)
+
+plt.figure(figsize=(6, 6))
+category_summary.plot.pie(autopct='%1.1f%%', startangle=90)
+plt.title("Expenses by Category")
+plt.ylabel("")
+plt.show()
+
+df['Date'] = pd.to_datetime(df['Date'])
+
+daily_total = df.groupby("Date")["Amount"].sum()
+plt.figure(figsize=(8, 4))
+daily_total.plot(marker='o')
+plt.title("Daily Expense Trend")
+plt.xlabel("Date")
+plt.ylabel("Amount Spent")
+plt.grid(True)
+plt.tight_layout()
+plt.show()
+
+highest_day = daily_total.idxmax()
+highest_amt = daily_total.max()
+print(f"\n Highest spending day: {highest_day.date()} — ₹{highest_amt}")
+
+top_category = category_summary.idxmax()
+top_amt = category_summary.max()
+print(f" Top spending category: {top_category} — ₹{top_amt}")
